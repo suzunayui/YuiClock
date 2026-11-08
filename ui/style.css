@@ -1,0 +1,56 @@
+:root {
+  --fg: #fff;
+  --bg: #000;
+  --font: Consolas, "Yu Gothic UI", monospace;
+  --weight: 400;
+  --radius: 0px;
+}
+
+/*
+ * The window is transparent and #panel is the visible, rounded part. The colour can't go on
+ * <body>: with a transparent <html>, a body background spreads to the whole canvas and
+ * ignores border-radius.
+ */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+#panel {
+  height: 100%;
+  background: var(--bg);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  user-select: none;
+}
+
+#face {
+  /* Clicks fall through to #panel, which is the drag region. */
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--fg);
+  font-family: var(--font);
+  font-weight: var(--weight);
+  /* main.js scales this so the whole face fits the window. */
+  font-size: 40px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+#date {
+  font-size: 0.5em;
+  margin-bottom: 0.08em;
+}
+
+#date[hidden] {
+  display: none;
+}

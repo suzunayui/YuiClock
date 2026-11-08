@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "YuiClock",
+  "mainBinaryName": "YuiClock",
+  "version": "../package.json",
+  "identifier": "com.suzunayui.yuiclock",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "YuiClock",
+        "width": 280,
+        "height": 90,
+        "minWidth": 100,
+        "minHeight": 36,
+        "alwaysOnTop": true,
+        "decorations": false,
+        "shadow": false,
+        "maximizable": false,
+        "skipTaskbar": true,
+        "focus": false,
+        "transparent": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self'; script-src 'self'; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/icon.ico"],
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper" },
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico"
+      }
+    }
+  }
+}

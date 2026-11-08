@@ -1,0 +1,136 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f5f5f5;
+  --fg: #1a1a1a;
+  --muted: #666;
+  --field: #fff;
+  --border: #c8c8c8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #202020;
+    --fg: #f0f0f0;
+    --muted: #a0a0a0;
+    --field: #2c2c2c;
+    --border: #4a4a4a;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px "Yu Gothic UI", "Segoe UI", sans-serif;
+  user-select: none;
+}
+
+form {
+  display: grid;
+  gap: 14px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+input[type="color"] {
+  width: 64px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--field);
+}
+
+select {
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--fg);
+  font: inherit;
+}
+
+.check.sub {
+  margin-top: -6px;
+  padding-left: 80px;
+  font-size: 13px;
+}
+
+#preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+
+#previewDate {
+  font-size: 16px;
+}
+
+#previewTime {
+  font-size: 34px;
+}
+
+.range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.range input {
+  flex: 1;
+  margin: 0;
+}
+
+.range output {
+  width: 3.5em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+button {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--fg);
+  font: inherit;
+}

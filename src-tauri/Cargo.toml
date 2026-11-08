@@ -1,0 +1,26 @@
+[package]
+name = "yui-clock"
+version = "2026.1108.1"
+description = "Always-on-top desktop digital clock"
+authors = ["suzunayui"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["custom-protocol", "tray-icon"] }
+tauri-plugin-window-state = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = ["Win32_Graphics_DirectWrite"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
