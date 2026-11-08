@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod fonts;
+mod obs;
 
 use std::{fs, path::PathBuf, sync::Mutex};
 
@@ -107,6 +108,43 @@ fn set_settings(app: AppHandle, settings: Settings) -> Result<(), String> {
     store_settings(&app, settings)
 }
 
+/// Resize a window's content area to `height` CSS pixels, keeping its width.
+#[tauri::command]
+fn fit_window_height(window: tauri::WebviewWindow, height: f64) -> tauri::Result<()> {
+    let scale = window.scale_factor()?;
+    let width = window.inner_size()?.to_logical::<f64>(scale).width;
+    window.set_size(tauri::LogicalSize::new(width, height.ceil()))
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ObsInfo {
+    url: String,
+    /// The URL to drag into OBS: OBS reads the layer-* parameters as the new browser
+    /// source's name and size, then strips them from the URL it stores.
+    drag_url: String,
+    error: Option<String>,
+}
+
+#[tauri::command]
+fn obs_info(app: AppHandle, server: State<obs::ObsServer>) -> ObsInfo {
+    // Size the source like the desktop clock, at a width that stays sharp on a 1080p canvas.
+    let width = 800u32;
+    let height = app
+        .get_webview_window(MAIN_WINDOW)
+        .and_then(|window| window.inner_size().ok())
+        .filter(|size| size.width > 0 && size.height > 0)
+        .map(|size| (f64::from(width) * f64::from(size.height) / f64::from(size.width)).round() as u32)
+        .unwrap_or(260)
+        .clamp(80, 1600);
+    let url = obs::url();
+    ObsInfo {
+        drag_url: format!("{url}?layer-name=YuiClock&layer-width={width}&layer-height={height}"),
+        url,
+        error: server.error.clone(),
+    }
+}
+
 #[tauri::command]
 fn list_fonts() -> Vec<fonts::FontFamily> {
     fonts::system_fonts()
@@ -176,12 +214,16 @@ fn open_settings(app: &AppHandle) {
     }
     let _ = WebviewWindowBuilder::new(app, SETTINGS_WINDOW, WebviewUrl::App("settings.html".into()))
         .title("YuiClock 設定")
-        .inner_size(380.0, 590.0)
+        // The page sets the final height to fit its content once it has loaded.
+        .inner_size(640.0, 520.0)
         .resizable(false)
         .maximizable(false)
         .minimizable(false)
         // The clock may be topmost, so the settings window must be too or it can end up underneath.
         .always_on_top(true)
+        // Nothing is dropped onto this window, and Tauri's drop handling could get in the way
+        // of dragging the OBS link out of it.
+        .disable_drag_drop_handler()
         .center()
         .build();
 }
@@ -241,6 +283,7 @@ fn main() {
             app.manage(TrayOnTopItem(tray_on_top));
             apply_window_settings(app.handle(), &settings);
             app.manage(SettingsStore(Mutex::new(settings)));
+            app.manage(obs::start(app.handle().clone()));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -248,7 +291,9 @@ fn main() {
             get_settings,
             default_settings,
             set_settings,
-            list_fonts
+            list_fonts,
+            fit_window_height,
+            obs_info
         ])
         .on_menu_event(|app, event| match event.id().as_ref() {
             MENU_SHOW => show_clock(app),

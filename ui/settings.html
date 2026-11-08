@@ -9,55 +9,79 @@
   </head>
   <body>
     <form id="form">
-      <label class="row">
-        <span>文字色</span>
-        <input type="color" name="textColor" />
-      </label>
-      <label class="row">
-        <span>背景色</span>
-        <input type="color" name="backgroundColor" />
-      </label>
-      <label class="row">
-        <span>フォント</span>
-        <select name="fontFamily"></select>
-      </label>
-      <label class="check sub">
-        <input type="checkbox" id="monoOnly" checked />
-        <span>等幅フォントだけ表示</span>
-      </label>
-      <div id="preview"><span id="previewDate"></span><span id="previewTime"></span></div>
-      <label class="row">
-        <span>角の丸さ</span>
-        <span class="range">
-          <input type="range" name="cornerRadius" min="0" max="100" step="1" />
-          <output id="radiusValue"></output>
-        </span>
-      </label>
-      <label class="check">
-        <input type="checkbox" name="alwaysOnTop" />
-        <span>最前面に表示</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" name="bold" />
-        <span>太字</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" name="showDate" />
-        <span>日付と曜日を表示</span>
-      </label>
-      <label class="row">
-        <span>曜日の表記</span>
-        <select name="weekdayFormat">
-          <option value="short-ja">日</option>
-          <option value="long-ja">日曜日</option>
-          <option value="long-en">Sunday</option>
-          <option value="short-en">Sun</option>
-        </select>
-      </label>
-      <label class="check">
-        <input type="checkbox" name="showSeconds" />
-        <span>秒を表示</span>
-      </label>
+      <div class="columns">
+        <section>
+          <h2>見た目</h2>
+          <label class="row">
+            <span>文字色</span>
+            <input type="color" name="textColor" />
+          </label>
+          <label class="row">
+            <span>背景色</span>
+            <input type="color" name="backgroundColor" />
+          </label>
+          <label class="row">
+            <span>フォント</span>
+            <select name="fontFamily"></select>
+          </label>
+          <label class="check sub">
+            <input type="checkbox" id="monoOnly" checked />
+            <span>等幅フォントだけ表示</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" name="bold" />
+            <span>太字</span>
+          </label>
+          <label class="row">
+            <span>角の丸さ</span>
+            <span class="range">
+              <input type="range" name="cornerRadius" min="0" max="100" step="1" />
+              <output id="radiusValue"></output>
+            </span>
+          </label>
+        </section>
+
+        <section>
+          <h2>表示</h2>
+          <div id="preview"><span id="previewDate"></span><span id="previewTime"></span></div>
+          <div class="pair">
+            <label class="check">
+              <input type="checkbox" name="showDate" />
+              <span>日付と曜日を表示</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" name="showSeconds" />
+              <span>秒を表示</span>
+            </label>
+          </div>
+          <fieldset class="choices" id="weekdayChoices">
+            <legend>曜日の表記</legend>
+            <div class="options">
+              <label><input type="radio" name="weekdayFormat" value="short-ja" />日</label>
+              <label><input type="radio" name="weekdayFormat" value="long-ja" />日曜日</label>
+              <label><input type="radio" name="weekdayFormat" value="long-en" />Sunday</label>
+              <label><input type="radio" name="weekdayFormat" value="short-en" />Sun</label>
+            </div>
+          </fieldset>
+          <label class="check">
+            <input type="checkbox" name="alwaysOnTop" />
+            <span>最前面に表示</span>
+          </label>
+        </section>
+      </div>
+
+      <section class="note">
+        <h2>OBSに表示する場合</h2>
+        <div class="obs-actions">
+          <a id="obsLink" class="drag" draggable="true" href="#">⠿ OBSにドラッグして追加</a>
+          <button type="button" id="copyUrl">URLをコピー</button>
+          <span id="copied" class="copied" hidden>コピーしました</span>
+        </div>
+        <p id="obsHelp">上のつまみをOBSの「ソース」欄かプレビューにドラッグし、確認で「はい」を選ぶと、ブラウザソースとして追加されます。ドラッグできないときは、URLをコピーしてブラウザソースのURLに貼ってください。</p>
+        <p class="url">URL：<span id="obsUrl"></span></p>
+        <p id="obsError" class="error" hidden></p>
+      </section>
+
       <p class="hint">フォントの一覧は PC に入っているものから作っています。変更はすぐ時計に反映されます。</p>
       <div class="buttons">
         <button type="button" id="reset">初期設定に戻す</button>

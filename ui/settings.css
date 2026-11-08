@@ -31,16 +31,90 @@ form {
   gap: 14px;
 }
 
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+section {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+}
+
+h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 .row {
   display: grid;
   grid-template-columns: 80px 1fr;
   align-items: center;
 }
 
+.note {
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.note p {
+  margin: 0;
+}
+
+.obs-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drag {
+  padding: 6px 14px;
+  border: 1px dashed var(--muted);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--fg);
+  text-decoration: none;
+  cursor: grab;
+}
+
+.drag:active {
+  cursor: grabbing;
+}
+
+.copied {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.url {
+  color: var(--muted);
+  font-size: 12px;
+  user-select: text;
+}
+
+.error {
+  color: #d9534f;
+}
+
 .check {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
 }
 
 input[type="color"] {
@@ -105,6 +179,40 @@ select {
   width: 3.5em;
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+.choices {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.choices legend {
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+.choices .options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.choices .options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.choices:disabled {
+  opacity: 0.5;
+}
+
+input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
 }
 
 input[type="checkbox"] {
