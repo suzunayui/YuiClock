@@ -1,6 +1,6 @@
 [package]
 name = "yui-clock"
-version = "2026.1108.1"
+version = "2026.1108.2"
 description = "Always-on-top desktop digital clock"
 authors = ["suzunayui"]
 edition = "2021"
