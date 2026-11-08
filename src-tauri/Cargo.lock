@@ -4328,7 +4328,7 @@ dependencies = [
 
 [[package]]
 name = "yui-clock"
-version = "2026.1108.2"
+version = "2026.1108.3"
 dependencies = [
  "serde",
  "serde_json",
