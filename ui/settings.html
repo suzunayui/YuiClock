@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title>YuiClock 設定</title>
     <link rel="stylesheet" href="settings.css" />
+    <script src="format.js" defer></script>
     <script src="settings.js" defer></script>
   </head>
   <body>
@@ -43,6 +44,15 @@
       <label class="check">
         <input type="checkbox" name="showDate" />
         <span>日付と曜日を表示</span>
+      </label>
+      <label class="row">
+        <span>曜日の表記</span>
+        <select name="weekdayFormat">
+          <option value="short-ja">日</option>
+          <option value="long-ja">日曜日</option>
+          <option value="long-en">Sunday</option>
+          <option value="short-en">Sun</option>
+        </select>
       </label>
       <label class="check">
         <input type="checkbox" name="showSeconds" />

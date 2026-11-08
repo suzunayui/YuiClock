@@ -29,6 +29,8 @@ struct Settings {
     font_family: String,
     bold: bool,
     show_date: bool,
+    /// "short-ja" (日), "long-ja" (日曜日), "long-en" (Sunday) or "short-en" (Sun).
+    weekday_format: String,
     show_seconds: bool,
     /// 0 = square corners, 100 = fully rounded ends (radius is half the shorter side).
     corner_radius: u32,
@@ -43,6 +45,7 @@ impl Default for Settings {
             font_family: "Consolas".into(),
             bold: false,
             show_date: true,
+            weekday_format: "short-ja".into(),
             show_seconds: true,
             corner_radius: 0,
             always_on_top: true,
@@ -173,7 +176,7 @@ fn open_settings(app: &AppHandle) {
     }
     let _ = WebviewWindowBuilder::new(app, SETTINGS_WINDOW, WebviewUrl::App("settings.html".into()))
         .title("YuiClock 設定")
-        .inner_size(380.0, 540.0)
+        .inner_size(380.0, 590.0)
         .resizable(false)
         .maximizable(false)
         .minimizable(false)

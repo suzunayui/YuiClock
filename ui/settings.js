@@ -4,8 +4,6 @@ const fontSelect = form.elements.fontFamily;
 const preview = document.getElementById("preview");
 const previewDate = document.getElementById("previewDate");
 const previewTime = document.getElementById("previewTime");
-const pad = (n) => String(n).padStart(2, "0");
-const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
 const monoOnly = document.getElementById("monoOnly");
 let fonts = [];
@@ -51,6 +49,7 @@ function collect() {
     fontFamily: el.fontFamily.value,
     bold: el.bold.checked,
     showDate: el.showDate.checked,
+    weekdayFormat: el.weekdayFormat.value,
     showSeconds: el.showSeconds.checked,
     cornerRadius: Number(el.cornerRadius.value),
     alwaysOnTop: el.alwaysOnTop.checked,
@@ -62,10 +61,10 @@ function refresh() {
   document.getElementById("radiusValue").textContent = `${s.cornerRadius}%`;
 
   const now = new Date();
-  previewDate.textContent = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} (${WEEKDAYS[now.getDay()]})`;
-  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  previewTime.textContent = s.showSeconds ? `${time}:${pad(now.getSeconds())}` : time;
+  previewDate.textContent = formatDate(now, s.weekdayFormat);
+  previewTime.textContent = formatTime(now, s.showSeconds);
   previewDate.hidden = !s.showDate;
+  form.elements.weekdayFormat.disabled = !s.showDate;
 
   preview.style.fontFamily = `"${s.fontFamily.replace(/["\\]/g, "")}", "Yu Gothic UI", monospace`;
   preview.style.fontWeight = s.bold ? "700" : "400";

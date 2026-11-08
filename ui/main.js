@@ -5,17 +5,14 @@ const root = document.documentElement;
 const face = document.getElementById("face");
 const date = document.getElementById("date");
 const clock = document.getElementById("clock");
-const pad = (n) => String(n).padStart(2, "0");
-const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
-
 let showSeconds = true;
+let weekdayFormat = "short-ja";
 let cornerRadius = 0;
 
 function render() {
   const now = new Date();
-  date.textContent = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} (${WEEKDAYS[now.getDay()]})`;
-  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  clock.textContent = showSeconds ? `${time}:${pad(now.getSeconds())}` : time;
+  date.textContent = formatDate(now, weekdayFormat);
+  clock.textContent = formatTime(now, showSeconds);
   fit();
 }
 
@@ -41,6 +38,7 @@ function apply(settings) {
   root.style.setProperty("--weight", settings.bold ? "700" : "400");
   date.hidden = !settings.showDate;
   showSeconds = settings.showSeconds;
+  weekdayFormat = settings.weekdayFormat;
   cornerRadius = settings.cornerRadius;
   render();
 }
