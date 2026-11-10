@@ -53,7 +53,7 @@ h2 {
 
 .row {
   display: grid;
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: 96px 1fr;
   align-items: center;
 }
 
@@ -88,6 +88,27 @@ h2 {
 
 .drag:active {
   cursor: grabbing;
+}
+
+.obs-parts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obs-parts > span:first-child {
+  flex: none;
+  width: 8em;
+}
+
+.parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.parts .drag {
+  padding: 3px 10px;
 }
 
 .copied {
@@ -138,7 +159,7 @@ select {
 
 .check.sub {
   margin-top: -6px;
-  padding-left: 80px;
+  padding-left: 96px;
   font-size: 13px;
 }
 

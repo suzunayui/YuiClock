@@ -39,7 +39,7 @@ body {
   color: var(--fg);
   font-family: var(--font);
   font-weight: var(--weight);
-  /* main.js scales this so the whole face fits the window. */
+  /* clock.js scales this so the whole face fits the window. */
   font-size: 40px;
   font-variant-numeric: tabular-nums;
   line-height: 1;

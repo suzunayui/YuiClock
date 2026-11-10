@@ -45,12 +45,15 @@ function collect() {
   const el = form.elements;
   return {
     textColor: el.textColor.value,
+    textTransparency: Number(el.textTransparency.value),
     backgroundColor: el.backgroundColor.value,
+    backgroundTransparency: Number(el.backgroundTransparency.value),
     fontFamily: el.fontFamily.value,
     bold: el.bold.checked,
     showDate: el.showDate.checked,
     weekdayFormat: el.weekdayFormat.value,
     showSeconds: el.showSeconds.checked,
+    alignWidths: el.alignWidths.checked,
     cornerRadius: Number(el.cornerRadius.value),
     alwaysOnTop: el.alwaysOnTop.checked,
   };
@@ -58,18 +61,25 @@ function collect() {
 
 function refresh() {
   const s = collect();
-  document.getElementById("radiusValue").textContent = `${s.cornerRadius}%`;
+  for (const output of document.querySelectorAll("output[data-for]")) {
+    output.textContent = `${s[output.dataset.for]}%`;
+  }
 
   const now = new Date();
   previewDate.textContent = formatDate(now, s.weekdayFormat);
   previewTime.textContent = formatTime(now, s.showSeconds);
   previewDate.hidden = !s.showDate;
   document.getElementById("weekdayChoices").disabled = !s.showDate;
+  form.elements.alignWidths.disabled = !s.showDate;
 
   preview.style.fontFamily = `"${s.fontFamily.replace(/["\\]/g, "")}", "Yu Gothic UI", monospace`;
   preview.style.fontWeight = s.bold ? "700" : "400";
-  preview.style.color = s.textColor;
-  preview.style.background = s.backgroundColor;
+  preview.style.color = withTransparency(s.textColor, s.textTransparency);
+  // A checkerboard behind the colour shows how see-through the background is.
+  const bg = withTransparency(s.backgroundColor, s.backgroundTransparency);
+  preview.style.background = `linear-gradient(${bg}, ${bg}), repeating-conic-gradient(#c8c8c8 0 25%, #f0f0f0 0 50%) 0 0 / 14px 14px`;
+  // After the font is set, since the match depends on the glyphs' widths.
+  alignDateWidth(previewDate, previewTime, "16px", s.alignWidths);
 }
 
 const save = () => invoke("set_settings", { settings: collect() });
@@ -95,6 +105,23 @@ window.__TAURI__.event.listen("settings-changed", (event) => {
   form.elements.alwaysOnTop.checked = event.payload.alwaysOnTop;
 });
 
+// A source size that fits one piece snugly: wide CJK glyphs count as a full em, the rest
+// (digits and Latin letters) roughly 0.62em. The clock page scales its text to fill whatever
+// size this gives, leaving the same margins as the whole clock.
+function partSize(part, weekdayFormat) {
+  const height = 200;
+  const ems = (text) => [...text].reduce((sum, ch) => sum + (ch.charCodeAt(0) > 0x2e80 ? 1 : 0.62), 0);
+  // A week of sample dates, so anything showing the weekday is sized for its longest name.
+  const texts = [...Array(7).keys()].map((i) => CLOCK_PARTS[part].text(new Date(2026, 10, 1 + i), weekdayFormat));
+  const widest = Math.max(...texts.map(ems));
+  const fontSize = height * 0.88;
+  const width = Math.ceil((fontSize * widest) / 0.92) + 8;
+  // Keep long sets like "2026/11/08 (Sunday)" well inside a 1920-wide canvas; the page keeps
+  // the same proportions at any size, so shrinking both sides changes nothing else.
+  const maxWidth = 1280;
+  return width <= maxWidth ? [width, height] : [maxWidth, Math.round((height * maxWidth) / width)];
+}
+
 async function setUpObs() {
   const info = await invoke("obs_info");
   const link = document.getElementById("obsLink");
@@ -108,14 +135,44 @@ async function setUpObs() {
     return;
   }
 
-  link.href = info.dragUrl;
-  // The link is only for dragging; following it would navigate this window away.
-  link.addEventListener("click", (event) => event.preventDefault());
-  link.addEventListener("dragstart", (event) => {
-    event.dataTransfer.effectAllowed = "copyLink";
-    event.dataTransfer.setData("text/uri-list", info.dragUrl);
-    event.dataTransfer.setData("text/plain", info.dragUrl);
-  });
+  // OBS turns a dropped link into a browser source, reading the layer-* parameters as its
+  // name and size and keeping the rest (our "part") in the URL it stores.
+  const dragUrl = (name, width, height, part) => {
+    const params = new URLSearchParams();
+    if (part) params.set("part", part);
+    params.set("layer-name", name);
+    params.set("layer-width", String(width));
+    params.set("layer-height", String(height));
+    // OBS decodes the name without turning "+" back into a space.
+    return `${info.url}?${params.toString().replaceAll("+", "%20")}`;
+  };
+
+  const makeDraggable = (element, urlNow) => {
+    element.href = urlNow();
+    // The link is only for dragging; following it would navigate this window away.
+    element.addEventListener("click", (event) => event.preventDefault());
+    element.addEventListener("dragstart", (event) => {
+      const url = urlNow();
+      event.dataTransfer.effectAllowed = "copyLink";
+      event.dataTransfer.setData("text/uri-list", url);
+      event.dataTransfer.setData("text/plain", url);
+    });
+  };
+
+  makeDraggable(link, () => dragUrl("YuiClock", info.width, info.height));
+
+  for (const [key, { group, label, name }] of Object.entries(CLOCK_PARTS)) {
+    const chip = document.createElement("a");
+    chip.className = "drag";
+    chip.draggable = true;
+    chip.textContent = label;
+    if (name) chip.title = name;
+    makeDraggable(chip, () => {
+      const [width, height] = partSize(key, collect().weekdayFormat);
+      return dragUrl(`YuiClock ${name ?? label}`, width, height, key);
+    });
+    document.querySelector(`.parts[data-group="${group}"]`).append(chip);
+  }
 
   const copied = document.getElementById("copied");
   document.getElementById("copyUrl").addEventListener("click", async () => {

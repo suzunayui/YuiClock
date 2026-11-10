@@ -26,13 +26,19 @@ const SETTINGS_EVENT: &str = "settings-changed";
 #[serde(default, rename_all = "camelCase")]
 struct Settings {
     text_color: String,
+    /// 0 = opaque, 100 = invisible.
+    text_transparency: u32,
     background_color: String,
+    /// 0 = opaque, 100 = invisible.
+    background_transparency: u32,
     font_family: String,
     bold: bool,
     show_date: bool,
     /// "short-ja" (日), "long-ja" (日曜日), "long-en" (Sunday) or "short-en" (Sun).
     weekday_format: String,
     show_seconds: bool,
+    /// Size the date line so it is exactly as wide as the time line.
+    align_widths: bool,
     /// 0 = square corners, 100 = fully rounded ends (radius is half the shorter side).
     corner_radius: u32,
     always_on_top: bool,
@@ -42,12 +48,15 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             text_color: "#ffffff".into(),
+            text_transparency: 0,
             background_color: "#000000".into(),
+            background_transparency: 0,
             font_family: "Consolas".into(),
             bold: false,
             show_date: true,
             weekday_format: "short-ja".into(),
             show_seconds: true,
+            align_widths: true,
             corner_radius: 0,
             always_on_top: true,
         }
@@ -89,6 +98,9 @@ fn store_settings(app: &AppHandle, settings: Settings) -> Result<(), String> {
     let json = serde_json::to_string_pretty(&settings).map_err(|e| e.to_string())?;
     fs::write(&path, json).map_err(|e| e.to_string())?;
     apply_window_settings(app, &settings);
+    if let Err(error) = obs::write_settings(app, &settings) {
+        eprintln!("Failed to update the OBS page's settings: {error}");
+    }
     *app.state::<SettingsStore>().0.lock().unwrap() = settings.clone();
     app.emit(SETTINGS_EVENT, settings).map_err(|e| e.to_string())
 }
@@ -120,14 +132,17 @@ fn fit_window_height(window: tauri::WebviewWindow, height: f64) -> tauri::Result
 #[serde(rename_all = "camelCase")]
 struct ObsInfo {
     url: String,
-    /// The URL to drag into OBS: OBS reads the layer-* parameters as the new browser
-    /// source's name and size, then strips them from the URL it stores.
-    drag_url: String,
+    /// The whole clock's size for its OBS source, shaped like the desktop clock.
+    width: u32,
+    height: u32,
     error: Option<String>,
 }
 
+/// Whether the OBS page could be written at startup, so the settings window can explain a failure.
+struct ObsPage(Option<String>);
+
 #[tauri::command]
-fn obs_info(app: AppHandle, server: State<obs::ObsServer>) -> ObsInfo {
+fn obs_info(app: AppHandle, page: State<ObsPage>) -> ObsInfo {
     // Size the source like the desktop clock, at a width that stays sharp on a 1080p canvas.
     let width = 800u32;
     let height = app
@@ -137,11 +152,16 @@ fn obs_info(app: AppHandle, server: State<obs::ObsServer>) -> ObsInfo {
         .map(|size| (f64::from(width) * f64::from(size.height) / f64::from(size.width)).round() as u32)
         .unwrap_or(260)
         .clamp(80, 1600);
-    let url = obs::url();
+    let (url, error) = match (obs::page_url(&app), &page.0) {
+        (Ok(url), None) => (url, None),
+        (Ok(url), Some(error)) => (url, Some(error.clone())),
+        (Err(error), _) => (String::new(), Some(error)),
+    };
     ObsInfo {
-        drag_url: format!("{url}?layer-name=YuiClock&layer-width={width}&layer-height={height}"),
         url,
-        error: server.error.clone(),
+        width,
+        height,
+        error: error.map(|e| format!("OBS用のファイルを書き出せませんでした（{e}）。")),
     }
 }
 
@@ -282,8 +302,8 @@ fn main() {
 
             app.manage(TrayOnTopItem(tray_on_top));
             apply_window_settings(app.handle(), &settings);
+            app.manage(ObsPage(obs::write_page(app.handle(), &settings).err()));
             app.manage(SettingsStore(Mutex::new(settings)));
-            app.manage(obs::start(app.handle().clone()));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

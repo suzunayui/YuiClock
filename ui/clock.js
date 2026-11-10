@@ -5,14 +5,24 @@ const face = document.getElementById("face");
 const date = document.getElementById("date");
 const clock = document.getElementById("clock");
 
+// An OBS source added for one piece (e.g. "?part=year") shows only that piece.
+const part = CLOCK_PARTS[new URLSearchParams(location.search).get("part")];
+
 let showSeconds = true;
+let showDate = true;
+let alignWidths = true;
 let weekdayFormat = "short-ja";
 let cornerRadius = 0;
 
 function render() {
   const now = new Date();
-  date.textContent = formatDate(now, weekdayFormat);
-  clock.textContent = formatTime(now, showSeconds);
+  if (part) {
+    clock.textContent = part.text(now, weekdayFormat);
+  } else {
+    date.textContent = formatDate(now, weekdayFormat);
+    clock.textContent = formatTime(now, showSeconds);
+  }
+  date.hidden = part ? true : !showDate;
   fit();
 }
 
@@ -24,6 +34,8 @@ function fit() {
 
   const base = 100;
   face.style.fontSize = `${base}px`;
+  // Sized in em, so the date keeps its match with the time when the face scales below.
+  alignDateWidth(date, clock, "0.5em", alignWidths && !part);
   const { width, height } = face.getBoundingClientRect();
   if (!width || !height) return;
   const scale = Math.min((innerWidth * 0.92) / width, (innerHeight * 0.88) / height);
@@ -32,12 +44,13 @@ function fit() {
 
 function applySettings(settings) {
   const name = settings.fontFamily.replace(/["\\]/g, "");
-  root.style.setProperty("--fg", settings.textColor);
-  root.style.setProperty("--bg", settings.backgroundColor);
+  root.style.setProperty("--fg", withTransparency(settings.textColor, settings.textTransparency));
+  root.style.setProperty("--bg", withTransparency(settings.backgroundColor, settings.backgroundTransparency));
   root.style.setProperty("--font", `${name ? `"${name}", ` : ""}"Yu Gothic UI", monospace`);
   root.style.setProperty("--weight", settings.bold ? "700" : "400");
-  date.hidden = !settings.showDate;
+  showDate = settings.showDate;
   showSeconds = settings.showSeconds;
+  alignWidths = settings.alignWidths ?? true;
   weekdayFormat = settings.weekdayFormat;
   cornerRadius = settings.cornerRadius;
   render();
