@@ -31,10 +31,11 @@ form {
   gap: 14px;
 }
 
+/* Three columns side by side, so the window is wide rather than tall and fits a laptop screen. */
 .columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 28px;
+  grid-template-columns: 1fr 1fr 1.3fr;
+  gap: 24px;
 }
 
 section {
@@ -72,6 +73,7 @@ h2 {
 
 .obs-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
@@ -90,15 +92,10 @@ h2 {
   cursor: grabbing;
 }
 
+/* The label sits above its handles: the column is too narrow for both on one line. */
 .obs-parts {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.obs-parts > span:first-child {
-  flex: none;
-  width: 8em;
+  display: grid;
+  gap: 4px;
 }
 
 .parts {
@@ -253,10 +250,20 @@ input[type="checkbox"] {
   line-height: 1.6;
 }
 
-.buttons {
+.footer {
   display: flex;
-  justify-content: space-between;
-  margin-top: 4px;
+  align-items: center;
+  gap: 16px;
+  margin-top: 2px;
+}
+
+.footer .hint {
+  flex: 1;
+  text-align: center;
+}
+
+.footer button {
+  flex: none;
 }
 
 button {

@@ -126,7 +126,9 @@ fn set_settings(app: AppHandle, settings: Settings) -> Result<(), String> {
 fn fit_window_height(window: tauri::WebviewWindow, height: f64) -> tauri::Result<()> {
     let scale = window.scale_factor()?;
     let width = window.inner_size()?.to_logical::<f64>(scale).width;
-    window.set_size(tauri::LogicalSize::new(width, height.ceil()))
+    window.set_size(tauri::LogicalSize::new(width, height.ceil()))?;
+    // It opened centred at a guessed height; centre it again now that the height is known.
+    window.center()
 }
 
 #[derive(Serialize)]
@@ -236,7 +238,7 @@ fn open_settings(app: &AppHandle) {
     let _ = WebviewWindowBuilder::new(app, SETTINGS_WINDOW, WebviewUrl::App("settings.html".into()))
         .title("YuiClock 設定")
         // The page sets the final height to fit its content once it has loaded.
-        .inner_size(640.0, 520.0)
+        .inner_size(1040.0, 440.0)
         .resizable(false)
         .maximizable(false)
         .minimizable(false)

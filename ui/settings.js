@@ -182,6 +182,21 @@ async function setUpObs() {
   });
 }
 
+// Size the window to the page. Platforms disagree on whether a window's height includes its
+// title bar, so after asking for the page's height, add whatever is still missing.
+async function fitWindow() {
+  // Measure <body> itself: scrollHeight never reports less than the current window height.
+  let height = document.body.getBoundingClientRect().height;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    await invoke("fit_window_height", { height });
+    // Give the resize a moment to reach the page.
+    await new Promise((resolve) => setTimeout(resolve, 120));
+    const missing = document.documentElement.scrollHeight - window.innerHeight;
+    if (missing <= 0) return;
+    height += missing;
+  }
+}
+
 (async () => {
   fonts = await invoke("list_fonts");
   fill(await invoke("get_settings"));
@@ -189,6 +204,5 @@ async function setUpObs() {
   // Size the window to its content so nothing ever needs scrolling, whatever the
   // system font size or display scaling.
   await document.fonts.ready;
-  // Measure <body> itself: scrollHeight never reports less than the current window height.
-  await invoke("fit_window_height", { height: document.body.getBoundingClientRect().height });
+  await fitWindow();
 })();

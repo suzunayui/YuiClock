@@ -86,35 +86,35 @@
             <span>最前面に表示</span>
           </label>
         </section>
+
+        <section class="note">
+          <h2>OBSに表示する場合</h2>
+          <div class="obs-actions">
+            <a id="obsLink" class="drag" draggable="true" href="#">⠿ OBSにドラッグして追加</a>
+            <button type="button" id="copyUrl">URLをコピー</button>
+            <span id="copied" class="copied" hidden>コピーしました</span>
+          </div>
+          <div class="obs-parts">
+            <span>まとめて追加：</span>
+            <span data-group="set" class="parts"></span>
+          </div>
+          <div class="obs-parts">
+            <span>一部分だけ追加：</span>
+            <span data-group="part" class="parts"></span>
+          </div>
+          <div class="obs-parts">
+            <span>記号だけ追加：</span>
+            <span data-group="symbol" class="parts"></span>
+          </div>
+          <p id="obsHelp">つまみをOBSの「ソース」欄かプレビューにドラッグし、確認で「はい」を選ぶと、ブラウザソースとして追加されます。「時分秒」や「年」、「/」などのつまみは、その部分だけのソースになります。YuiClockを終了していてもOBSに表示されます。ドラッグできないときは、URLをコピーしてブラウザソースのURLに貼ってください。</p>
+          <p class="url">URL：<span id="obsUrl"></span></p>
+          <p id="obsError" class="error" hidden></p>
+        </section>
       </div>
 
-      <section class="note">
-        <h2>OBSに表示する場合</h2>
-        <div class="obs-actions">
-          <a id="obsLink" class="drag" draggable="true" href="#">⠿ OBSにドラッグして追加</a>
-          <button type="button" id="copyUrl">URLをコピー</button>
-          <span id="copied" class="copied" hidden>コピーしました</span>
-        </div>
-        <div class="obs-parts">
-          <span>まとめて追加：</span>
-          <span data-group="set" class="parts"></span>
-        </div>
-        <div class="obs-parts">
-          <span>一部分だけ追加：</span>
-          <span data-group="part" class="parts"></span>
-        </div>
-        <div class="obs-parts">
-          <span>記号だけ追加：</span>
-          <span data-group="symbol" class="parts"></span>
-        </div>
-        <p id="obsHelp">つまみをOBSの「ソース」欄かプレビューにドラッグし、確認で「はい」を選ぶと、ブラウザソースとして追加されます。「時分秒」や「年」、「/」などのつまみは、その部分だけのソースになります。YuiClockを終了していてもOBSに表示されます。ドラッグできないときは、URLをコピーしてブラウザソースのURLに貼ってください。</p>
-        <p class="url">URL：<span id="obsUrl"></span></p>
-        <p id="obsError" class="error" hidden></p>
-      </section>
-
-      <p class="hint">フォントの一覧は PC に入っているものから作っています。変更はすぐ時計に反映されます。</p>
-      <div class="buttons">
+      <div class="footer">
         <button type="button" id="reset">初期設定に戻す</button>
+        <p class="hint">フォントの一覧は PC に入っているものから作っています。変更はすぐ時計に反映されます。</p>
         <button type="button" id="close">閉じる</button>
       </div>
     </form>
