@@ -148,10 +148,24 @@ async function setUpObs() {
     return `${info.url}?${params.toString().replaceAll("+", "%20")}`;
   };
 
+  // OBS makes a browser source only from a dropped URL; dropped text becomes a text source.
+  // WebKit (macOS) puts a dragged link's URL on the drag by itself, but only if the page has
+  // put nothing there, and what a page sets by hand arrives as plain text. So on WebKit the
+  // link is left to drag as a link. Chromium (Windows) hands over what is set here as a URL.
+  const nativeLinkDrag = /AppleWebKit/.test(navigator.userAgent) && !/Chrome\//.test(navigator.userAgent);
+
   const makeDraggable = (element, urlNow) => {
-    element.href = urlNow();
+    // The size in the URL depends on the settings, so bring it up to date before a drag starts.
+    const refresh = () => (element.href = urlNow());
+    refresh();
+    element.addEventListener("pointerdown", refresh);
     // The link is only for dragging; following it would navigate this window away.
     element.addEventListener("click", (event) => event.preventDefault());
+    if (nativeLinkDrag) {
+      // `draggable` would make WebKit drag it as an element, without the URL.
+      element.removeAttribute("draggable");
+      return;
+    }
     element.addEventListener("dragstart", (event) => {
       const url = urlNow();
       event.dataTransfer.effectAllowed = "copyLink";
