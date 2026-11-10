@@ -4353,7 +4353,7 @@ dependencies = [
 
 [[package]]
 name = "yui-clock"
-version = "2026.1108.3"
+version = "2026.1110.1"
 dependencies = [
  "core-foundation",
  "core-text",
