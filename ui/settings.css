@@ -17,6 +17,13 @@
   }
 }
 
+/* The window is sized to the page (see fitWindow in settings.js), so the page itself never
+   scrolls: the preview's height shifts by a pixel as the time changes, and that must not
+   bring up a scroll bar. */
+html {
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   padding: 20px;
@@ -34,8 +41,28 @@ form {
 /* Three columns side by side, so the window is wide rather than tall and fits a laptop screen. */
 .columns {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.3fr;
+  grid-template-columns: 216px 1fr 1.15fr;
   gap: 24px;
+}
+
+.stack {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  min-width: 0;
+}
+
+/* The handles to drag into OBS, down the left edge in two columns. */
+.obs-drag {
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.obs-drag[hidden] {
+  display: none;
 }
 
 section {
@@ -92,20 +119,29 @@ h2 {
   cursor: grabbing;
 }
 
-/* The label sits above its handles: the column is too narrow for both on one line. */
 .obs-parts {
   display: grid;
   gap: 4px;
 }
 
+.obs-parts > span:first-child {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .parts {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
 }
 
+.drag {
+  text-align: center;
+  white-space: nowrap;
+}
+
 .parts .drag {
-  padding: 3px 10px;
+  padding: 4px 6px;
 }
 
 .copied {

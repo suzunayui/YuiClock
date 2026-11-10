@@ -130,6 +130,7 @@ async function setUpObs() {
     const error = document.getElementById("obsError");
     error.textContent = info.error;
     error.hidden = false;
+    document.getElementById("obsDrag").hidden = true;
     document.querySelector(".obs-actions").hidden = true;
     document.getElementById("obsHelp").hidden = true;
     return;
