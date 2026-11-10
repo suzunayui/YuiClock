@@ -15,7 +15,7 @@ pub fn system_fonts() -> Vec<FontFamily> {
     let mut fonts = imp::system_fonts().unwrap_or_default();
     // "@" families are vertical-writing variants of CJK fonts.
     fonts.retain(|f| !f.name.is_empty() && !f.name.starts_with('@'));
-    fonts.sort_by(|a, b| a.label.to_lowercase().cmp(&b.label.to_lowercase()));
+    fonts.sort_by(|a, b| (a.label.to_lowercase(), &a.name).cmp(&(b.label.to_lowercase(), &b.name)));
     fonts.dedup_by(|a, b| a.name == b.name);
     fonts
 }
@@ -97,7 +97,76 @@ mod tests {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "macos")]
+mod imp {
+    use super::FontFamily;
+    use core_foundation::base::{CFType, TCFType};
+    use core_foundation::string::CFString;
+    use core_text::font_collection;
+    use core_text::font_descriptor::{
+        kCTFontFamilyNameAttribute, CTFontDescriptor, CTFontDescriptorCopyLocalizedAttribute,
+        SymbolicTraitAccessors, TraitAccessors,
+    };
+
+    pub fn system_fonts() -> Result<Vec<FontFamily>, ()> {
+        let collection = font_collection::create_for_all_families();
+        let Some(descriptors) = collection.get_descriptors() else {
+            return Ok(Vec::new());
+        };
+        let mut fonts = Vec::new();
+        for descriptor in descriptors.iter() {
+            // The family name is what CSS `font-family` matches; names starting with "." are
+            // the system's own interface fonts, which pages cannot ask for by name.
+            let name = descriptor.family_name();
+            if name.starts_with('.') {
+                continue;
+            }
+            let label = localized_family(&descriptor).unwrap_or_else(|| name.clone());
+            let monospace = descriptor.traits().symbolic_traits().is_monospace();
+            fonts.push(FontFamily { name, label, monospace });
+        }
+        Ok(fonts)
+    }
+
+    /// The family name in the user's language (ヒラギノ角ゴシック for Hiragino Sans), when it has one.
+    fn localized_family(descriptor: &CTFontDescriptor) -> Option<String> {
+        unsafe {
+            let value = CTFontDescriptorCopyLocalizedAttribute(
+                descriptor.as_concrete_TypeRef(),
+                kCTFontFamilyNameAttribute,
+                std::ptr::null_mut(),
+            );
+            if value.is_null() {
+                return None;
+            }
+            CFType::wrap_under_create_rule(value).downcast::<CFString>().map(|s| s.to_string())
+        }
+    }
+}
+
+#[cfg(all(test, target_os = "macos"))]
+mod mac_tests {
+    #[test]
+    fn lists_installed_fonts() {
+        let fonts = super::system_fonts();
+        println!("{} families", fonts.len());
+        for f in fonts.iter().filter(|f| f.label != f.name).take(8) {
+            println!("{} / {}", f.label, f.name);
+        }
+        let mono: Vec<_> = fonts.iter().filter(|f| f.monospace).map(|f| f.label.as_str()).collect();
+        println!("monospace ({}): {}", mono.len(), mono.join(", "));
+        assert!(fonts.iter().any(|f| f.name == "Menlo" && f.monospace));
+        assert!(fonts.iter().any(|f| f.name == "Helvetica" && !f.monospace));
+        assert!(fonts.iter().all(|f| !f.name.starts_with('.')));
+        let names: Vec<_> = fonts.iter().map(|f| f.name.as_str()).collect();
+        let mut unique = names.clone();
+        unique.sort();
+        unique.dedup();
+        assert_eq!(names.len(), unique.len(), "each family is listed once");
+    }
+}
+
+#[cfg(not(any(windows, target_os = "macos")))]
 mod imp {
     pub fn system_fonts() -> Result<Vec<super::FontFamily>, ()> {
         Ok(Vec::new())

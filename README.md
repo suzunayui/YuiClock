@@ -24,6 +24,12 @@
 
 署名なしのため、SmartScreenの警告が出ることがあります。その場合は「詳細情報」から「実行」を選んでください。
 
+### Mac
+
+Apple Silicon（M1以降）のMacでは、`YuiClock-<バージョン>-mac-arm64.zip`を展開し、`YuiClock.app`を「アプリケーション」フォルダに移動してください。Dockには出ず、メニューバーのアイコンからメニューを開きます。設定は`~/Library/Application Support/com.suzunayui.yuiclock/settings.json`に保存されます。
+
+Appleの公証を受けていないため、初回は開けないことがあります。その場合は「システム設定」→「プライバシーとセキュリティ」を開き、YuiClockの「このまま開く」を選んでください。
+
 ## 開発
 
 Rustが必要です。Tauriで動きます。
@@ -50,3 +56,15 @@ npm run dist
 ```
 
 `release`にインストーラーとチェックサムが作られます。この2つをGitHub Releaseに公開します。YuiLauncherはチェックサムを確かめてからインストールします。
+
+Mac版も出すときは、先にMacでビルドします（Node.jsは不要です）。
+
+```bash
+cargo tauri build
+```
+
+```bash
+scripts/package-mac.sh
+```
+
+`release`に`YuiClock-<バージョン>-mac-arm64.zip`が作られます。これをWindows側の`release`に置いてから`npm run dist`を実行すると、チェックサムがWindowsとMacの2行で1つのファイルにまとまります。
