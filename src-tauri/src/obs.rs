@@ -77,6 +77,15 @@ mod tests {
     }
 
     #[test]
+    fn keeps_the_leading_slash_of_a_mac_path() {
+        // OBS itself builds "http://absolute/" + path, so a Unix path keeps both slashes.
+        assert_eq!(
+            absolute_url("/Users/yui/Library/Application Support/com.suzunayui.yuiclock/obs/index.html"),
+            "http://absolute//Users/yui/Library/Application%20Support/com.suzunayui.yuiclock/obs/index.html"
+        );
+    }
+
+    #[test]
     fn escapes_spaces_and_non_ascii() {
         assert_eq!(absolute_url(r"C:\Users\ゆい さん\x.html"), "http://absolute/C:/Users/%E3%82%86%E3%81%84%20%E3%81%95%E3%82%93/x.html");
     }

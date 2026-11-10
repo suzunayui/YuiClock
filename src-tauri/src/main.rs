@@ -51,7 +51,8 @@ impl Default for Settings {
             text_transparency: 0,
             background_color: "#000000".into(),
             background_transparency: 0,
-            font_family: "Consolas".into(),
+            // A monospace font each system ships with.
+            font_family: if cfg!(target_os = "macos") { "Menlo" } else { "Consolas" }.into(),
             bold: false,
             show_date: true,
             weekday_format: "short-ja".into(),
@@ -279,6 +280,9 @@ fn main() {
                 .build(),
         )
         .setup(|app| {
+            // Like `skipTaskbar` on Windows: no Dock icon, the menu bar icon is the way in.
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
             let settings = load_settings(app.handle());
             let (tray_menu, tray_on_top) = build_menu(app, settings.always_on_top, true)?;
             let mut tray = TrayIconBuilder::with_id("main")
