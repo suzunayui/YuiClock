@@ -120,10 +120,14 @@ h2 {
   color: var(--muted);
   font-size: 12px;
   user-select: text;
+  /* The URL holds a file path with no spaces: a long user name, or a Mac's
+     "Library/Application%20Support", must wrap rather than widen the page. */
+  overflow-wrap: anywhere;
 }
 
 .error {
   color: #d9534f;
+  overflow-wrap: anywhere;
 }
 
 .check {
