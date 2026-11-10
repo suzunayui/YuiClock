@@ -238,7 +238,7 @@ fn open_settings(app: &AppHandle) {
     let _ = WebviewWindowBuilder::new(app, SETTINGS_WINDOW, WebviewUrl::App("settings.html".into()))
         .title("YuiClock 設定")
         // The page sets the final height to fit its content once it has loaded.
-        .inner_size(1040.0, 440.0)
+        .inner_size(1100.0, 440.0)
         .resizable(false)
         .maximizable(false)
         .minimizable(false)
